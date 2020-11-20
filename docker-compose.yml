@@ -1,0 +1,48 @@
+version: '3'
+services:
+
+# Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6666:80"
+      - "6667:443"
+    networks:
+      - app-network
+
+# PHP Back-end
+  php-fpm:
+    image: php:fpm-alpine
+    container_name: php-fpm
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8091:8080"
+    networks:
+      - app-network
+
+# DB
+  database:
+    image: postgres
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "5432:5432"
+    env_file:
+      - database.env # configure postgres
+    volumes:
+      - database-data:/var/lib/postgresql/data/ # persist data even if container shuts down  
+
+
+# Docker Networks
+networks:
+  app-network:
+    driver: bridge
+
+# Docker Volumes
+volumes:
+  database-data: # named volumes can be managed easier using docker-compose
